@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "font-awesome@5.12.1",
+      "destination": "wwwroot/lib/font-awesome/"
+    },
+    {
+      "library": "mouse0270-bootstrap-notify@3.1.7",
+      "destination": "wwwroot/lib/bootstrap-notify/"
+    }
+  ]
+}

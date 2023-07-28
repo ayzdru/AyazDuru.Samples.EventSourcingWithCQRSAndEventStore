@@ -1,0 +1,279 @@
+﻿@page
+@model TodoPageModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+
+@{
+    ViewData["Title"] = "Todo";
+    var token = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+
+}
+@section Styles{
+    <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
+    <style>
+        .list-group-item {
+            cursor: pointer;
+        }
+
+        .done .flex-fill {
+            text-decoration: line-through;
+        }
+
+        .done {
+            background-color: #55ff7c !important;
+        }
+
+        .field-validation-error {
+            display: block;
+            padding: 3px;
+            color: #fff;
+            background-color: red;
+            border-radius: 0px 0px 5px 5px;
+            margin-top: -2px;
+            margin-bottom: 15px;
+        }
+
+        .list-group-item.active{
+            color: black !important;
+        }
+    </style>
+}
+<h1>@ViewData["Title"]</h1>
+<p>This is a todo list example.</p>
+<div class="row">
+    <div class="col-sm-4">
+        <h2>
+            Todo Lists
+        </h2>
+        <button class="btn btn-default right" title="Create Todo List..." data-bs-toggle="modal" data-bs-target="#CreateTodoListModal">
+            <i class="fas fa-plus"></i>
+        </button>
+        <ul id="TodoLists" class="list-group">
+            @foreach (var todoList in Model.TodoList)
+            {
+                <li id="TodoList-@todoList.Id" data-id="@todoList.Id" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" style="background-color:@todoList.ColourCode;">
+                    @todoList.Title
+                    <span class="badge badge-primary badge-pill">@todoList.ItemsCount</span>
+                </li>
+            }
+        </ul>
+    </div>
+    <div id="TodoListDetail" class="col-sm-8" style="display:none;">
+        <div class="clearfix">
+            <h2 id="TodoListTitle" class="float-left">
+            </h2>
+            <div class="btn-group btn-group-lg float-right" role="group" aria-label="...">
+                <button class="btn btn-default" title="Create Todo List Item" data-bs-toggle="modal" data-bs-target="#CreateTodoListItemModal">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="btn btn-default" title="Update Todo List" data-bs-toggle="modal" data-bs-target="#UpdateTodoListModal">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-default" title="Delete Todo List" data-bs-toggle="modal" data-bs-target="#DeleteTodoListModal">
+                    <i class="far fa-trash-alt"></i>
+                </button>
+            </div>
+        </div>
+        <ul id="TodoListItems" class="list-group mb-2">
+        </ul>
+    </div>
+</div>
+@section Modals{
+    <div class="modal fade" id="CreateTodoListModal" tabindex="-1" role="dialog" aria-labelledby="CreateTodoListModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="CreateTodoListModalLabel">Create Todo List</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="CreateTodoListForm" asp-page="Todo" asp-page-handler="CreateTodoList">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label asp-for="CreateTodoListBindingModel.Title" class="col-form-label"></label>
+                            <input asp-for="CreateTodoListBindingModel.Title" type="text" class="form-control">
+                            <span asp-validation-for="CreateTodoListBindingModel.Title"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="UpdateTodoListModal" tabindex="-1" role="dialog" aria-labelledby="UpdateTodoListModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="UpdateTodoListModalLabel">Update Todo List</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="UpdateTodoListForm" asp-page="Todo" asp-page-handler="UpdateTodoList">
+                    <div class="modal-body">
+                        <input type="hidden" asp-for="UpdateTodoListBindingModel.TodoListId" />
+                        <div class="form-group">
+                            <label asp-for="UpdateTodoListBindingModel.Title" class="col-form-label"></label>
+                            <input asp-for="UpdateTodoListBindingModel.Title" type="text" class="form-control">
+                            <span asp-validation-for="UpdateTodoListBindingModel.Title"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="DeleteTodoListModal" tabindex="-1" role="dialog" aria-labelledby="DeleteTodoListModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="DeleteTodoListModalLabel">Delete Todo List</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="DeleteTodoListForm" asp-page="Todo" asp-page-handler="DeleteTodoList">
+                    <input asp-for="DeleteTodoListBindingModel.TodoListId" type="hidden" />
+                    <div class="modal-body">
+                        <p>Are you sure?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="CreateTodoListItemModal" tabindex="-1" role="dialog" aria-labelledby="CreateTodoListItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="CreateTodoListItemModalLabel">Create Todo List Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="CreateTodoListItemForm" asp-page="Todo" asp-page-handler="CreateTodoListItem">
+                    <div class="modal-body">
+                        <input type="hidden" asp-for="CreateTodoListItemBindingModel.TodoListId" />
+                        <div class="form-group">
+                            <label asp-for="CreateTodoListItemBindingModel.Title" class="col-form-label"></label>
+                            <input asp-for="CreateTodoListItemBindingModel.Title" type="text" class="form-control">
+                            <span asp-validation-for="CreateTodoListItemBindingModel.Title"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="CreateTodoListItemBindingModel.Description" class="col-form-label"></label>
+                            <input asp-for="CreateTodoListItemBindingModel.Description" type="text" class="form-control">
+                            <span asp-validation-for="CreateTodoListItemBindingModel.Description"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts{
+    <script src="~/lib/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $('#CreateTodoListForm').on('submit', function (e) {
+            formSubmit(this, 'CreateTodoListModal', function (data) {
+                var title = $('#CreateTodoListBindingModel_Title').val();
+                $('#TodoLists').append('<li id="TodoList-' + data.body.id + '" data-id="' + data.body.id + '" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" style="background-color:' + data.body.colourCode + ';">' + title + '<span class="badge badge-primary badge-pill">0</span></li>');
+                clearForm('CreateTodoListForm');
+            });
+            return false;
+        });
+        $('#UpdateTodoListModal').on('show.bs.modal', function (event) {
+            var id = $('#TodoLists li.active').data('id');
+            $('#UpdateTodoListBindingModel_TodoListId').val(id);
+            var title = $('#TodoLists li.active').contents().get(0).nodeValue.trim();
+            $('#UpdateTodoListBindingModel_Title').val(title);
+        });
+        $('#UpdateTodoListForm').on('submit', function (e) {
+            formSubmit(this, 'UpdateTodoListModal', function (data) {
+                var title = $('#UpdateTodoListBindingModel_Title').val();
+                $('#TodoListTitle').text(title);
+                $('#TodoLists li.active').contents().get(0).nodeValue = title;
+                clearForm('UpdateTodoListForm');
+            });
+            return false;
+        });
+        function createTodoListItem(id, title, description, isDone) {
+            $('#TodoListItems').append('<li id="TodoListItem-' + id + '" data-id="' + id + '" class="list-group-item d-flex justify-content-between align-items-center pr-0' + (isDone ? ' done' : '') + '"><div class="flex-fill ml-3"><h5 class="mb-1">' + title + '</h5><p class="mb-1">' + description + '</p></div><button onclick="deleteTodoListItem(\'' + id + '\');" class="btn btn-default float-right" title="Delete"><i class="far fa-trash-alt"></i></button></li>');
+        }
+        $('#TodoLists').on('click', 'li', function () {
+            var $activeTodoList = $('#TodoLists li.active');
+            $activeTodoList.removeClass('active');
+            $(this).addClass('active');
+            $('#TodoListTitle').text($(this).contents().get(0).nodeValue);
+            $('#TodoListDetail').show();
+            $('#TodoListItems').empty();
+            $.post('@Url.Page("Todo","GetTodoListItems")', { TodoListId: $(this).data('id'), __RequestVerificationToken: '@token' }, function (todoListItems) {
+                $.each(todoListItems, function (index, todoListItem) {
+                    createTodoListItem(todoListItem.todoListItemId, todoListItem.title, todoListItem.description, todoListItem.isDone);
+                });
+            });
+        });
+        $('#DeleteTodoListModal').on('show.bs.modal', function (event) {
+            var id = $('#TodoLists li.active').data('id');
+            $('#DeleteTodoListBindingModel_TodoListId').val(id);
+        });
+        $("#DeleteTodoListForm").on("submit", function (e) {
+            formSubmit(this, 'DeleteTodoListModal', function () {
+                var id = $('#DeleteTodoListBindingModel_TodoListId').val();
+                $('#TodoList-' + id).remove();
+                $('#TodoListDetail').hide();
+                clearForm('DeleteTodoListForm');
+            });
+            return false;
+        });
+        $('#TodoListItems').on('click', 'li', function (event) {
+            if (event.target.tagName != "BUTTON") {
+                var $this = $(this);
+                $.post('@Url.Page("Todo", "UpdateTodoListItem")', { TodoListItemId: $this.data('id'), IsDone: !$(this).hasClass('done'), __RequestVerificationToken: '@token' }, function () {
+                    $this.toggleClass('done');
+                });
+            }
+        });
+        $('#CreateTodoListItemModal').on('show.bs.modal', function (event) {
+            var id = $('#TodoLists li.active').data('id');
+            $('#CreateTodoListItemBindingModel_TodoListId').val(id);
+        });
+        $('#CreateTodoListItemForm').on('submit', function (e) {
+            formSubmit(this, 'CreateTodoListItemModal', function (data) {
+                var title = $('#CreateTodoListItemBindingModel_Title').val();
+                var description = $('#CreateTodoListItemBindingModel_Description').val();
+                createTodoListItem(data.body.id, title, description, false);
+                setTodoListItemsCount(true);
+                clearForm('CreateTodoListItemForm');
+            });
+            return false;
+        });
+        function deleteTodoListItem(todoListItemId) {
+            $.post('@Url.Page("Todo", "DeleteTodoListItem")', { TodoListItemId: todoListItemId, __RequestVerificationToken: '@token' }, function () {
+                var $todoListItem = $('#TodoListItem-' + todoListItemId);
+                $todoListItem.fadeOut("slow", function () {
+                    setTodoListItemsCount(false);
+                    $todoListItem.remove();
+                });
+            });
+
+        }
+        function clearForm(formId) {
+            $('#' + formId + ' input[type=text], textarea').val('');
+        }
+        function setTodoListItemsCount(isCreate) {
+            var value = 1;
+            if (!isCreate) {
+                value = -1;
+            }
+            var $count = $('#TodoLists li.active').find('.badge');
+            var countValue = parseInt($count.text().trim());
+            $count.text(countValue + value);
+        }
+    </script>
+}
