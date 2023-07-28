@@ -65,7 +65,7 @@ namespace AyazDuru.Samples.EventSourcingWithCQRSAndEventStore.Repositories
                 @event.Event.EventStreamId,
                 Data = JsonSerializer.Deserialize(
                     json: Encoding.UTF8.GetString(@event.Event.Data),
-                    returnType: Type.GetType(Encoding.UTF8.GetString(@event.Event.Metadata)) //returnType : Yukarıda 'SaveAsync' metodunda metadata olarak tutulan event class'ının tam adı, burada ilgili event'in özgün sınıfına dönüştürülürken kullanılmaktadır.
+                    returnType: Type.GetType(Encoding.UTF8.GetString(@event.Event.Metadata))
                     ),
                 Metadata = Encoding.UTF8.GetString(@event.Event.Metadata)
             });
